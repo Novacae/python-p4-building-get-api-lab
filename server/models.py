@@ -20,6 +20,9 @@ class Bakery(db.Model, SerializerMixin):
 
     baked_goods = db.relationship('BakedGood', backref='bakery')
 
+    def to_dict(self, include=None, exclude=None):
+        return super().to_dict(include=include, exclude=exclude, relationships={'baked_goods': {'include': ('id', 'name', 'price')}})
+
     def __repr__(self):
         return f'<Bakery {self.name}>'
 
@@ -30,12 +33,14 @@ class BakedGood(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    price = db.Column(db.Integer)
+    price = db.Column(db.Float)  
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     bakery_id = db.Column(db.Integer, db.ForeignKey('bakeries.id'))
-    bakery = db.relationship('Bakery',backref='baked_goods')
+
+    def to_dict(self, include=None, exclude=None):
+        return super().to_dict(include=include, exclude=exclude, relationships={'bakery': {'include': ('id', 'name')}})
 
     def __repr__(self):
         return f'<Baked Good {self.name}, ${self.price}>'
